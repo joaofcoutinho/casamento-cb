@@ -24,8 +24,8 @@ export default function HomePage() {
           {/* Nomes no rodapé do hero */}
           <div className="absolute inset-x-0 bottom-0 px-5 pb-5 text-center text-white sm:px-6 sm:pb-[5%]">
             <p className="overline-claro">O casamento de</p>
-            <h1 className="mt-1.5 font-titulo font-light leading-[0.95] tracking-tight sm:mt-2">
-              <span className="block text-[clamp(2rem,8vw,8.5rem)]">
+            <h1 className="mt-1.5 font-mileur leading-[0.95] sm:mt-2">
+              <span className="block text-[clamp(2.5rem,9vw,10rem)]">
                 Cynthia &amp; Benhur
               </span>
             </h1>

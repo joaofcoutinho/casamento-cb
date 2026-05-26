@@ -7,6 +7,23 @@
   --font-sans: "DM Sans", system-ui, sans-serif;
 }
 
+/* Fonte "MileurFree" — usada exclusivamente no título "Cynthia & Benhur"
+   do hero. Arquivos em public/fonts/. */
+@font-face {
+  font-family: "MileurFree";
+  src: url("/fonts/MileurFree-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MileurFree";
+  src: url("/fonts/MileurFree-ItalicItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
 
 html {
   scroll-behavior: smooth;

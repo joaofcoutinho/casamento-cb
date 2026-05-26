@@ -17,6 +17,8 @@ const config: Config = {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         // Fonte dos títulos (Montserrat).
         titulo: ["var(--font-titulo)", "system-ui", "sans-serif"],
+        // Fonte exclusiva do título do hero ("Cynthia & Benhur").
+        mileur: ['"MileurFree"', "var(--font-serif)", "cursive"],
       },
       keyframes: {
         fadeInUp: {
