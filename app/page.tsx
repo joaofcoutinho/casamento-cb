@@ -19,12 +19,14 @@ export default function HomePage() {
             role="img"
             aria-label="Cynthia e Benhur"
           />
-          {/* Leve overlay na base, para legibilidade dos nomes */}
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+          {/* Overlay degradê na base — escurece o suficiente para o texto ler bem */}
+          <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
           {/* Nomes no rodapé do hero */}
           <div className="absolute inset-x-0 bottom-0 px-5 pb-5 text-center text-white sm:px-6 sm:pb-[5%]">
-            <p className="overline-claro">O casamento de</p>
-            <h1 className="mt-1.5 font-mileur leading-[0.95] sm:mt-2">
+            <p className="overline-claro [text-shadow:0_1px_8px_rgba(0,0,0,0.7)]">
+              O casamento de
+            </p>
+            <h1 className="mt-1.5 font-mileur leading-[0.95] [text-shadow:0_2px_24px_rgba(0,0,0,0.55),0_0_8px_rgba(0,0,0,0.4)] sm:mt-2">
               <span className="block text-[clamp(2.5rem,9vw,10rem)]">
                 Cynthia &amp; Benhur
               </span>
@@ -240,7 +242,7 @@ export default function HomePage() {
 
       {/* ====================== RODAPÉ ====================== */}
       <footer className="border-t border-neutral-800 bg-noir px-6 py-16 text-center text-white">
-        <p className="font-titulo text-4xl">Cynthia &amp; Benhur</p>
+        <p className="font-mileur text-5xl">Cynthia &amp; Benhur</p>
         <div className="mt-6">
           <Divisor claro />
         </div>
