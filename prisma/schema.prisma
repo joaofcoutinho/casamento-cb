@@ -1,0 +1,43 @@
+// Schema Prisma — Casamento Cynthia & Benhur
+// Banco: PostgreSQL (Supabase). Para SQLite local, troque provider para
+// "sqlite", remova o campo directUrl e ajuste DATABASE_URL em .env.local.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Para producao com Supabase, troque provider para "postgresql" e
+// reative a linha directUrl (veja .env.example e o README).
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
+}
+
+// Uma Familia representa um cadastro (responsavel + dependentes).
+// A igreja e unica por familia (informada pelo responsavel).
+model Familia {
+  id          String   @id @default(cuid())
+  criadoEm    DateTime @default(now())
+  email       String
+  telefone    String
+  igreja      String
+  igrejaOutro String? // preenchido quando igreja = "Outros"
+  membros     Membro[]
+
+  @@index([igreja])
+}
+
+model Membro {
+  id            String  @id @default(cuid())
+  nome          String
+  documento     String // CPF ou RG
+  parentesco    String // "Responsavel" | "Conjuge" | "Filho" | "Outro"
+  ehCrianca     Boolean @default(false) // crianca de colo (ate 2 anos)
+  ocupaCadeira  Boolean @default(true)
+  isResponsavel Boolean @default(false)
+  familia       Familia @relation(fields: [familiaId], references: [id], onDelete: Cascade)
+  familiaId     String
+
+  @@index([familiaId])
+}

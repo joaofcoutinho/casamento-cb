@@ -1,0 +1,28 @@
+FONTE DO TÍTULO DO HERO — "Hello Paris"
+=======================================
+
+O título "Cynthia & Benhur" do hero usa a fonte "Hello Paris".
+Ela é uma fonte comercial — não vem incluída no projeto.
+
+COMO ADICIONAR
+--------------
+Coloque o arquivo da fonte NESTA pasta (public/fonts/) com o nome:
+
+    hello-paris.woff2     (formato recomendado)
+
+Também são aceitos, caso você só tenha outro formato:
+    hello-paris.woff
+    hello-paris.otf
+    hello-paris.ttf
+
+Use exatamente esse nome de arquivo (tudo minúsculo, com hífen).
+Não é preciso mexer no código — o site já está configurado para
+carregar a fonte automaticamente.
+
+Dica: se você só tem .otf ou .ttf, pode converter para .woff2 (mais
+leve e rápido) em conversores online como transfonter.org.
+
+ENQUANTO O ARQUIVO NÃO EXISTIR
+------------------------------
+O título aparece com a fonte serifada (Cormorant Garamond) como
+reserva — o site continua funcionando normalmente.

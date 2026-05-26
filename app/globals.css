@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  /* Etiqueta de seção (overline) */
+  .overline {
+    @apply font-sans text-xs font-medium uppercase tracking-[0.34em] text-neutral-500;
+  }
+  .overline-claro {
+    @apply font-sans text-xs font-medium uppercase tracking-[0.34em] text-white/70;
+  }
+
+  /* Divisor — losango central entre duas linhas finas */
+  .divisor {
+    @apply mx-auto flex items-center justify-center gap-3;
+  }
+  .divisor span {
+    @apply block h-px w-12 bg-black;
+  }
+  .divisor i {
+    @apply block h-1.5 w-1.5 rotate-45 bg-black;
+  }
+  .divisor-claro span {
+    @apply bg-white;
+  }
+  .divisor-claro i {
+    @apply bg-white;
+  }
+
+  /* Campo de formulário — caixa com borda nítida para boa visibilidade */
+  .campo {
+    @apply w-full border border-neutral-300 bg-white px-4 py-3.5 font-sans
+      text-base text-black outline-none transition
+      placeholder:text-neutral-400 focus:border-black focus:ring-1
+      focus:ring-black;
+  }
+
+  .rotulo {
+    @apply mb-2 block font-sans text-xs font-semibold uppercase
+      tracking-[0.16em] text-neutral-700;
+  }
+
+  .erro {
+    @apply mt-1.5 font-sans text-xs font-medium text-red-600;
+  }
+
+  /* Botão principal — preto, grande e destacado */
+  .btn-primario {
+    @apply inline-flex items-center justify-center gap-2 bg-black px-10 py-5
+      font-sans text-sm font-semibold uppercase tracking-[0.2em] text-white
+      transition hover:bg-neutral-800 disabled:cursor-not-allowed
+      disabled:opacity-40;
+  }
+
+  /* Botão claro — para usar sobre fundos escuros */
+  .btn-claro {
+    @apply inline-flex items-center justify-center gap-2 bg-white px-10 py-5
+      font-sans text-sm font-semibold uppercase tracking-[0.2em] text-black
+      transition hover:bg-neutral-200 disabled:cursor-not-allowed
+      disabled:opacity-40;
+  }
+
+  /* Botão contornado */
+  .btn-contorno {
+    @apply inline-flex items-center justify-center gap-2 border-2 border-black
+      bg-transparent px-10 py-[18px] font-sans text-sm font-semibold uppercase
+      tracking-[0.2em] text-black transition hover:bg-black hover:text-white;
+  }
+  .btn-contorno-claro {
+    @apply inline-flex items-center justify-center gap-2 border-2 border-white
+      bg-transparent px-10 py-[18px] font-sans text-sm font-semibold uppercase
+      tracking-[0.2em] text-white transition hover:bg-white hover:text-black;
+  }
+}
+
+/* Animação de entrada controlada pelo IntersectionObserver (FadeIn) */
+.fade-target {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+}
+.fade-target.fade-visivel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Layout limpo para impressão do painel administrativo */
+@media print {
+  .nao-imprimir {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+  }
+  .area-impressao {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

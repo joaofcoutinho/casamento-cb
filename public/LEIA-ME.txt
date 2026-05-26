@@ -1,0 +1,16 @@
+IMAGENS DO SITE
+===============
+
+Coloque os arquivos de imagem nesta pasta (public/).
+
+1. image-hero.jpeg
+   Foto do casal exibida na primeira seção do site (HERO).
+   O hero respeita as proporções EXATAS do arquivo — a imagem aparece
+   inteira, sem corte, tanto na vertical quanto na horizontal.
+   A imagem atual tem 1537 x 1023 px (proporção 3:2).
+
+   Se trocar a imagem por outra de proporção diferente, ajuste o valor
+   "aspect-[1537/1023]" no arquivo app/page.tsx (seção HERO) para
+   "aspect-[LARGURA/ALTURA]" da nova imagem.
+
+Como trocar: salve o novo arquivo aqui com o nome "image-hero.jpeg".
