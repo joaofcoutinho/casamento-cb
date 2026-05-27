@@ -6,12 +6,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Para producao com Supabase, troque provider para "postgresql" e
-// reative a linha directUrl (veja .env.example e o README).
+// Banco: Neon.tech (PostgreSQL via pooler).
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // Uma Familia representa um cadastro (responsavel + dependentes).

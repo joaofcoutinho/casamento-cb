@@ -3,8 +3,27 @@ import FadeIn from "@/components/FadeIn";
 import Divisor from "@/components/Divisor";
 import InscricaoForm from "@/components/InscricaoForm";
 import { COTAS } from "@/lib/cotas";
+import { prisma } from "@/lib/prisma";
 
-export default function HomePage() {
+// A home consulta o total de inscritos a cada requisição para decidir se o
+// formulário deve estar aberto ou fechado (limite de vagas).
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  // Carrega o status de vagas. Em caso de falha de conexão, mantemos o
+  // formulário aberto — a API ainda validará o limite no momento do envio.
+  const limite = Number(process.env.VAGAS_LIMITE || 0);
+  let confirmadas = 0;
+  if (limite > 0) {
+    try {
+      confirmadas = await prisma.membro.count();
+    } catch {
+      confirmadas = 0;
+    }
+  }
+  const formAberto = limite === 0 || confirmadas < limite;
+  const restantes = limite > 0 ? Math.max(0, limite - confirmadas) : null;
+
   return (
     <main className="bg-white">
       {/* ======================= HERO ======================= */}
@@ -181,23 +200,35 @@ export default function HomePage() {
       {/* ==================== FORMULÁRIO ==================== */}
       <section id="inscricao" className="bg-cream px-6 py-16 sm:py-32">
         <FadeIn className="mb-14 text-center">
-          <p className="overline">Confirmação de presença</p>
+          <p className="overline">
+            {formAberto ? "Confirmação de presença" : "Encerrado"}
+          </p>
           <h2 className="mt-4 font-titulo text-4xl text-noir sm:text-6xl">
-            Realize sua Confirmação
+            {formAberto ? "Realize sua Confirmação" : "Inscrições encerradas"}
           </h2>
           <div className="mt-7">
             <Divisor />
           </div>
           <p className="mx-auto mt-6 max-w-xl font-sans text-sm leading-relaxed text-neutral-600 sm:text-base">
-            Preencha os dados do responsável e adicione os acompanhantes da
-            família. Ao final do cadastro, você receberá a confirmação por
-            e-mail.
+            {formAberto
+              ? "Preencha os dados do responsável e adicione os acompanhantes da família. Ao final do cadastro, você receberá a confirmação por e-mail."
+              : `Atingimos o limite de ${limite.toLocaleString("pt-BR")} convidados confirmados. Se você já se cadastrou, sua presença está garantida — basta aguardar o evento.`}
           </p>
+          {formAberto && restantes !== null && restantes <= 100 && (
+            <p className="mt-4 font-sans text-xs font-semibold uppercase tracking-[0.16em] text-red-600">
+              Apenas {restantes.toLocaleString("pt-BR")}{" "}
+              {restantes === 1 ? "vaga restante" : "vagas restantes"}
+            </p>
+          )}
         </FadeIn>
 
         <FadeIn>
           <div className="mx-auto max-w-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-12">
-            <InscricaoForm />
+            {formAberto ? (
+              <InscricaoForm />
+            ) : (
+              <InscricoesEncerradas limite={limite} />
+            )}
           </div>
         </FadeIn>
       </section>
@@ -265,5 +296,57 @@ export default function HomePage() {
         </p>
       </footer>
     </main>
+  );
+}
+
+// Painel exibido no lugar do formulário quando o limite de vagas é atingido.
+function InscricoesEncerradas({ limite }: { limite: number }) {
+  return (
+    <div className="text-center">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-noir text-noir">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-7 w-7"
+          aria-hidden="true"
+        >
+          <rect x="4" y="11" width="16" height="10" rx="2.5" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </svg>
+      </div>
+
+      <p className="overline mt-6">Lista fechada</p>
+      <h3 className="mt-3 font-titulo text-3xl text-noir sm:text-4xl">
+        Atingimos {limite.toLocaleString("pt-BR")} convidados
+      </h3>
+      <div className="mt-6">
+        <Divisor />
+      </div>
+
+      <p className="mx-auto mt-6 max-w-md font-sans text-sm leading-relaxed text-neutral-600">
+        As confirmações para o casamento de Cynthia &amp; Benhur estão{" "}
+        <strong>encerradas</strong>. O número máximo de{" "}
+        <strong>{limite.toLocaleString("pt-BR")} convidados</strong> já foi
+        atingido e o cadastro foi fechado.
+      </p>
+
+      <div className="mt-6 border-l-4 border-noir bg-cream p-5 text-left">
+        <p className="font-sans text-sm text-neutral-700">
+          <strong>Já se cadastrou?</strong> Sua presença está garantida —
+          basta apresentar a pulseira no dia. O e-mail de confirmação enviado
+          no momento do cadastro serve como comprovante.
+        </p>
+      </div>
+
+      <div className="mt-8">
+        <Link href="/cotas" className="btn-primario w-full sm:w-auto">
+          Presentear os noivos
+        </Link>
+      </div>
+    </div>
   );
 }

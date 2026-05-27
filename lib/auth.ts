@@ -1,12 +1,15 @@
 import crypto from "crypto";
 
 // Autenticacao simples do painel admin baseada em cookie assinado.
-// O token e um HMAC derivado da ADMIN_PASSWORD — sem necessidade de banco.
+// O token e um HMAC derivado da combinacao email+senha — sem necessidade
+// de banco de dados.
 
 export const ADMIN_COOKIE = "admin_session";
 
 function secret(): string {
-  return process.env.ADMIN_PASSWORD || "senha-padrao-troque-me";
+  const email = process.env.ADMIN_EMAIL || "";
+  const senha = process.env.ADMIN_PASSWORD || "";
+  return `${email}|${senha}` || "segredo-padrao-troque-me";
 }
 
 // Gera o token que sera gravado no cookie apos o login.
@@ -26,13 +29,23 @@ export function validarToken(token: string | undefined | null): boolean {
   }
 }
 
-// Confere a senha enviada no login.
-export function senhaCorreta(senha: string): boolean {
-  const esperada = process.env.ADMIN_PASSWORD || "";
-  if (!esperada || senha.length !== esperada.length) return false;
+// Compara duas strings em tempo constante (evita timing attacks).
+function igualSeguro(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
   try {
-    return crypto.timingSafeEqual(Buffer.from(senha), Buffer.from(esperada));
+    return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
   } catch {
     return false;
   }
+}
+
+// Confere e-mail + senha contra as variaveis de ambiente.
+export function loginCorreto(email: string, senha: string): boolean {
+  const emailEsperado = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+  const senhaEsperada = process.env.ADMIN_PASSWORD || "";
+  if (!emailEsperado || !senhaEsperada) return false;
+  return (
+    igualSeguro(email.trim().toLowerCase(), emailEsperado) &&
+    igualSeguro(senha, senhaEsperada)
+  );
 }

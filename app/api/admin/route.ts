@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { ADMIN_COOKIE, gerarToken, senhaCorreta, validarToken } from "@/lib/auth";
+import {
+  ADMIN_COOKIE,
+  gerarToken,
+  loginCorreto,
+  validarToken,
+} from "@/lib/auth";
 import { nomeIgreja } from "@/lib/igrejas";
 
 export const runtime = "nodejs";
@@ -14,7 +19,7 @@ function autenticado(): boolean {
 
 // --- POST /api/admin — login e logout ---------------------------------------
 export async function POST(req: Request) {
-  let body: { acao?: string; senha?: string };
+  let body: { acao?: string; email?: string; senha?: string };
   try {
     body = await req.json();
   } catch {
@@ -27,9 +32,14 @@ export async function POST(req: Request) {
     return res;
   }
 
-  // Login
-  if (!body.senha || !senhaCorreta(body.senha)) {
-    return NextResponse.json({ erro: "Senha incorreta." }, { status: 401 });
+  // Login (email + senha)
+  const email = body.email || "";
+  const senha = body.senha || "";
+  if (!email || !senha || !loginCorreto(email, senha)) {
+    return NextResponse.json(
+      { erro: "E-mail ou senha incorretos." },
+      { status: 401 }
+    );
   }
 
   const res = NextResponse.json({ ok: true });
@@ -54,18 +64,25 @@ export async function GET(req: Request) {
     include: { membros: { orderBy: { isResponsavel: "desc" } } },
   });
 
-  // Estrutura cada família com a igreja resolvida e o responsável destacado.
   const fichas = familias.map((f) => {
     const responsavel =
       f.membros.find((m) => m.isResponsavel) || f.membros[0] || null;
+    const igrejaNome = nomeIgreja(f.igreja, f.igrejaOutro);
+    // grupo: a categoria pré-definida (uma das IGREJAS) ou "Outros".
+    const igrejaGrupo = f.igreja;
+    const convidados = f.membros.filter((m) => !m.isResponsavel);
     return {
       id: f.id,
       criadoEm: f.criadoEm.toISOString(),
       email: f.email,
       telefone: f.telefone,
-      igreja: nomeIgreja(f.igreja, f.igrejaOutro),
+      igreja: igrejaNome,
+      igrejaGrupo,
+      igrejaOutro: f.igrejaOutro,
       responsavel: responsavel?.nome || "—",
+      responsavelDoc: responsavel?.documento || "—",
       totalMembros: f.membros.length,
+      totalConvidados: convidados.length,
       membros: f.membros.map((m) => ({
         id: m.id,
         nome: m.nome,
@@ -105,22 +122,24 @@ export async function GET(req: Request) {
         );
       }
     }
-    // BOM para que o Excel reconheça acentuação UTF-8.
     const csv = "﻿" + linhas.join("\r\n");
     return new NextResponse(csv, {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="inscritos-cynthia-benhur.csv"',
+        "Content-Disposition":
+          'attachment; filename="inscritos-cynthia-benhur.csv"',
       },
     });
   }
 
-  // Estatísticas
   const totalInscritos = fichas.reduce((s, f) => s + f.totalMembros, 0);
   const porIgrejaMap = new Map<string, number>();
   for (const f of fichas) {
-    porIgrejaMap.set(f.igreja, (porIgrejaMap.get(f.igreja) || 0) + f.totalMembros);
+    porIgrejaMap.set(
+      f.igrejaGrupo,
+      (porIgrejaMap.get(f.igrejaGrupo) || 0) + f.totalMembros
+    );
   }
   const porIgreja = Array.from(porIgrejaMap.entries())
     .map(([igreja, total]) => ({ igreja, total }))
@@ -138,4 +157,29 @@ export async function GET(req: Request) {
       vagasRestantes: limite > 0 ? Math.max(0, limite - totalInscritos) : null,
     },
   });
+}
+
+// --- DELETE /api/admin?id=FAMILIA_ID — remove uma família e seus membros ----
+export async function DELETE(req: Request) {
+  if (!autenticado()) {
+    return NextResponse.json({ erro: "Não autorizado." }, { status: 401 });
+  }
+
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ erro: "ID não informado." }, { status: 400 });
+  }
+
+  try {
+    // O onDelete: Cascade no schema apaga automaticamente os membros.
+    await prisma.familia.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("[admin] Erro ao excluir família:", err);
+    return NextResponse.json(
+      { erro: "Não foi possível excluir o cadastro." },
+      { status: 500 }
+    );
+  }
 }
